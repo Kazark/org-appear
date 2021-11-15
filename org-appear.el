@@ -269,6 +269,14 @@ Return nil if element cannot be parsed."
 	     (decompose-region start end))
 	    ((eq elem-type 'keyword)
 	     (remove-text-properties start end '(invisible org-link)))
+	    ((and (featurep 'org-fold)
+		  (eq elem-type 'link))
+	     (remove-text-properties start
+				     visible-start
+				     (list (org-fold-core--property-symbol-get-create 'org-link) nil))
+	     (remove-text-properties visible-end
+				     end
+				     (list (org-fold-core--property-symbol-get-create 'org-link) nil)))
 	    (t
 	     (remove-text-properties start visible-start '(invisible org-link))
 	     (remove-text-properties visible-end end '(invisible org-link)))))))
@@ -303,6 +311,16 @@ When RENEW is non-nil, obtain element at point instead."
 	       (compose-region start end (org-element-property :utf-8 elem)))
 	      ((eq elem-type 'keyword)
 	       (font-lock-flush start end))
+	      ((and (featurep 'org-fold)
+		    (eq elem-type 'link))
+	       (put-text-property start
+				  visible-start
+				  (org-fold-core--property-symbol-get-create 'org-link)
+				  'org-link)
+	       (put-text-property visible-end
+				  end
+				  (org-fold-core--property-symbol-get-create 'org-link)
+				  'org-link))
 	      (t
 	       (put-text-property start visible-start 'invisible 'org-link)
 	       (put-text-property visible-end end 'invisible 'org-link))))
